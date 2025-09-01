@@ -11,20 +11,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Récupérer le code source
+      # 1️⃣ Checkout du code
       - uses: actions/checkout@v4
 
-      # 2️⃣ Login sur Azure via Service Principal
+      # 2️⃣ Login sur Azure avec SERVICE_PRINCIPAL
       - name: 'Login to Azure'
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
-          client-secret: ${{ secrets.AZUREAPPSERVICE_CLIENTSECRET }}
-          auth-type: service-principal
+          creds: ${{ secrets.AZUREAPPSERVICE_CREDENTIALS }}
+          auth-type: SERVICE_PRINCIPAL
 
-      # 3️⃣ Login sur Azure Container Registry (ACR)
+      # 3️⃣ Login sur ACR
       - name: Login to Azure Container Registry
         uses: azure/docker-login@v1
         with:
@@ -32,12 +29,12 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      # 4️⃣ Build de l'image Docker
+      # 4️⃣ Build Docker image
       - name: Build Docker image
         run: |
           docker build -t dermatologieia.azurecr.io/derma-ia:latest .
 
-      # 5️⃣ Push de l'image Docker sur ACR
+      # 5️⃣ Push Docker image sur ACR
       - name: Push Docker image
         run: |
           docker push dermatologieia.azurecr.io/derma-ia:latest
@@ -48,8 +45,3 @@ jobs:
         with:
           app-name: 'derma-ia'
           images: 'dermatologieia.azurecr.io/derma-ia:latest'
-
-# 🔹 Notes importantes :
-# - Toutes les dépendances Python sont installées dans le Dockerfile via requirements.txt
-# - Assure-toi que le port exposé dans Dockerfile (ENV PORT=8080) correspond au port configuré dans Azure Web App
-# - Si requirements.txt ou Dockerfile change, le workflow rebuild et push automatiquement l'image mise à jour
