@@ -11,17 +11,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout du code
+      #  1️Récupérer le code source
       - uses: actions/checkout@v4
 
-      # 2️⃣ Login sur Azure avec SERVICE_PRINCIPAL
+      # 2️Login sur Azure via Service Principal
       - name: 'Login to Azure'
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZUREAPPSERVICE_CREDENTIALS }}
-          auth-type: SERVICE_PRINCIPAL
+          creds: |
+            {
+              "clientId": "${{ secrets.AZUREAPPSERVICE_CLIENTID }}",
+              "clientSecret": "${{ secrets.AZUREAPPSERVICE_CLIENTSECRET }}",
+              "subscriptionId": "${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}",
+              "tenantId": "${{ secrets.AZUREAPPSERVICE_TENANTID }}"
+            }
 
-      # 3️⃣ Login sur ACR
+      # 3️Login sur Azure Container Registry (ACR)
       - name: Login to Azure Container Registry
         uses: azure/docker-login@v1
         with:
@@ -29,17 +34,17 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      # 4️⃣ Build Docker image
+      # 4️Build de l'image Docker
       - name: Build Docker image
         run: |
           docker build -t dermatologieia.azurecr.io/derma-ia:latest .
 
-      # 5️⃣ Push Docker image sur ACR
+      # 5️Push de l'image Docker sur ACR
       - name: Push Docker image
         run: |
           docker push dermatologieia.azurecr.io/derma-ia:latest
 
-      # 6️⃣ Déploiement sur Azure Web App
+      # 6️Déploiement sur Azure Web App
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
