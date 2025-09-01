@@ -1,54 +1,46 @@
-name: Build and Deploy Docker image to Azure Web App - derma-ia
+name: Deploy to Azure - derma-ia
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:  # permet aussi de déclencher manuellement depuis GitHub Actions
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    permissions:
+      id-token: write   # Obligatoire pour OIDC
+      contents: read    # Pour pouvoir lire le code source
+
     steps:
-      # 1️⃣ Récupérer le code source
-      - name: Checkout source code
+      # 1. Récupérer le code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Login sur Azure avec Service Principal
+      # 2. Connexion Azure avec OIDC
       - name: Azure Login
         uses: azure/login@v2
         with:
-          creds: >
-            {
-              "clientId": "${{ secrets.AZUREAPPSERVICE_CLIENTID }}",
-              "clientSecret": "${{ secrets.AZUREAPPSERVICE_CLIENTSECRET }}",
-              "subscriptionId": "${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}",
-              "tenantId": "${{ secrets.AZUREAPPSERVICE_TENANTID }}"
-            }
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      # 3️⃣ Login sur Azure Container Registry (ACR)
-      - name: Login to Azure Container Registry
+      # 3. Build et push vers ACR (si tu utilises Docker)
+      - name: Build and Push Docker image
         uses: azure/docker-login@v1
         with:
-          login-server: dermatologieia.azurecr.io
+          login-server: voitureautonome.azurecr.io
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      # 4️⃣ Build de l’image Docker
-      - name: Build Docker image
-        run: |
-          docker build \
-            --build-arg CACHEBUST=$(date +%s) \
-            -t dermatologieia.azurecr.io/derma-ia:latest .
+      - run: |
+          docker build -t voitureautonome.azurecr.io/derma-ia:${{ github.sha }} .
+          docker push voitureautonome.azurecr.io/derma-ia:${{ github.sha }}
 
-      # 5️⃣ Push de l’image Docker sur ACR
-      - name: Push Docker image
-        run: docker push dermatologieia.azurecr.io/derma-ia:latest
-
-      # 6️⃣ Déploiement sur Azure Web App
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v3
+      # 4. Déploiement sur Azure App Service
+      - name: Deploy to Azure WebApp
+        uses: azure/webapps-deploy@v2
         with:
-          app-name: 'derma-ia'
-          images: 'dermatologieia.azurecr.io/derma-ia:latest'
+          app-name: derma-ia
+          images: voitureautonome.azurecr.io/derma-ia:${{ github.sha }}
