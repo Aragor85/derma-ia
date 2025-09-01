@@ -1,13 +1,16 @@
 import os
 
-# Clé API Mistral
-MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY", "hrupvGAkYlrC9AsZTFChVFpbl2drY009")
+# --- API Key Mistral ---
+MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
+if not MISTRAL_API_KEY:
+    raise EnvironmentError("❌ La variable d'environnement MISTRAL_API_KEY est manquante !")
 
-# Azure Storage
+# --- Azure Storage ---
 AZURE_STORAGE_CONNECTION_STRING = os.getenv(
     "AZURE_STORAGE_CONNECTION_STRING",
     "DefaultEndpointsProtocol=...;AccountName=...;AccountKey=...;EndpointSuffix=core.windows.net"
 )
+
 BLOB_CONTAINER_NAME = "dermatologiemodels"
 
 # Noms des blobs pour les modèles

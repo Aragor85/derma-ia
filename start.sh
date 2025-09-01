@@ -1,6 +1,13 @@
 #!/bin/bash
 set -e
 
+# --- Vérifier API Key ---
+if [ -z "$MISTRAL_API_KEY" ]; then
+  echo "❌ ERREUR : La variable d'environnement MISTRAL_API_KEY n'est pas définie."
+  exit 1
+fi
+echo "✅ MISTRAL_API_KEY détectée."
+
 # --- Créer dossier modèles ---
 mkdir -p /app/models
 
@@ -24,8 +31,14 @@ for name in "${!MODELS[@]}"; do
     fi
 done
 
+# --- Ports ---
+FASTAPI_PORT=${FASTAPI_PORT:-8000}
+STREAMLIT_PORT=${PORT:-8080}
+
 # --- Lancer FastAPI ---
-uvicorn app_fastapi:app --host 0.0.0.0 --port 8000 &
+echo "🚀 Démarrage FastAPI sur port $FASTAPI_PORT..."
+uvicorn app.app_fastapi:app --host 0.0.0.0 --port $FASTAPI_PORT &
 
 # --- Lancer Streamlit ---
-streamlit run app_streamlit.py --server.port=${PORT:-8080} --server.address=0.0.0.0
+echo "🚀 Démarrage Streamlit sur port $STREAMLIT_PORT..."
+streamlit run app/app_streamlit.py --server.port=$STREAMLIT_PORT --server.address=0.0.0.0
