@@ -5,10 +5,11 @@ on:
     branches:
       - main
   workflow_dispatch:
-  
- permissions:
+
+# 🔹 Permissions nécessaires pour OIDC et lecture du code
+permissions:
   id-token: write
-  contents: read 
+  contents: read
 
 jobs:
   build-and-deploy:
@@ -18,7 +19,7 @@ jobs:
       # 1️⃣ Récupérer le code source
       - uses: actions/checkout@v4
 
-      # 2️⃣ Login sur Azure
+      # 2️⃣ Login sur Azure via OIDC
       - name: 'Login to Azure'
         uses: azure/login@v2
         with:
@@ -51,10 +52,7 @@ jobs:
           app-name: 'derma-ia'
           images: 'dermatologieia.azurecr.io/derma-ia:latest'
 
-      # 🔹 Notes :
-      # - Toutes les dépendances Python sont installées dans le Dockerfile, 
-      #   donc pas besoin de pip install dans le workflow.
-      # - Si requirements.txt ou le code change, le workflow rebuild automatiquement 
-      #   et push l'image mise à jour sur ACR.
-      # - Le port exposé dans Dockerfile (ENV PORT=8080) doit correspondre à celui 
-      #   configuré dans Azure Web App (par défaut 80 ou 8080 selon la configuration).
+# 🔹 Notes :
+# - Toutes les dépendances Python sont installées dans le Dockerfile.
+# - Si requirements.txt ou le code change, le workflow rebuild et push automatiquement l'image mise à jour.
+# - Vérifie que le port exposé dans Dockerfile (ENV PORT=8080) correspond au port configuré dans Azure Web App.
