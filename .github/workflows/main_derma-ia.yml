@@ -4,18 +4,19 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
+  workflow_dispatch:  # permet aussi de déclencher manuellement depuis GitHub Actions
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      #  1️Récupérer le code source
-      - uses: actions/checkout@v4
+      # 1️⃣ Récupérer le code source
+      - name: Checkout source code
+        uses: actions/checkout@v4
 
-      # 2️Login sur Azure via Service Principal
-      - name: 'Login to Azure'
+      # 2️⃣ Login sur Azure avec Service Principal
+      - name: Azure Login
         uses: azure/login@v2
         with:
           creds: |
@@ -26,7 +27,7 @@ jobs:
               "tenantId": "${{ secrets.AZUREAPPSERVICE_TENANTID }}"
             }
 
-      # 3️Login sur Azure Container Registry (ACR)
+      # 3️⃣ Login sur Azure Container Registry (ACR)
       - name: Login to Azure Container Registry
         uses: azure/docker-login@v1
         with:
@@ -34,17 +35,18 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      # 4️Build de l'image Docker
+      # 4️⃣ Build de l’image Docker
       - name: Build Docker image
         run: |
-          docker build -t dermatologieia.azurecr.io/derma-ia:latest .
+          docker build \
+            --build-arg CACHEBUST=$(date +%s) \
+            -t dermatologieia.azurecr.io/derma-ia:latest .
 
-      # 5️Push de l'image Docker sur ACR
+      # 5️⃣ Push de l’image Docker sur ACR
       - name: Push Docker image
-        run: |
-          docker push dermatologieia.azurecr.io/derma-ia:latest
+        run: docker push dermatologieia.azurecr.io/derma-ia:latest
 
-      # 6️Déploiement sur Azure Web App
+      # 6️⃣ Déploiement sur Azure Web App
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
