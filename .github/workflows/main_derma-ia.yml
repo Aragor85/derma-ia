@@ -10,15 +10,15 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      id-token: write   # Obligatoire pour OIDC
-      contents: read    # Pour pouvoir lire le code source
+      id-token: write
+      contents: read
 
     steps:
-      # 1. Récupérer le code
+      # 1️⃣ Checkout du code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Connexion Azure avec OIDC
+      # 2️⃣ Connexion à Azure via OIDC
       - name: Azure Login
         uses: azure/login@v2
         with:
@@ -26,21 +26,23 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      # 3. Build et push vers ACR (si tu utilises Docker)
-      - name: Build and Push Docker image
+      # 3️⃣ Login sur ACR derma-ia
+      - name: Login to ACR
         uses: azure/docker-login@v1
         with:
-          login-server: voitureautonome.azurecr.io
+          login-server: derma-ia.azurecr.io
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      - run: |
-          docker build -t voitureautonome.azurecr.io/derma-ia:${{ github.sha }} .
-          docker push voitureautonome.azurecr.io/derma-ia:${{ github.sha }}
+      # 4️⃣ Build et push de l’image Docker
+      - name: Build and Push Docker image
+        run: |
+          docker build -t derma-ia.azurecr.io/derma-ia:${{ github.sha }} .
+          docker push derma-ia.azurecr.io/derma-ia:${{ github.sha }}
 
-      # 4. Déploiement sur Azure App Service
+      # 5️⃣ Déploiement sur Azure App Service
       - name: Deploy to Azure WebApp
-        uses: azure/webapps-deploy@v2
+        uses: azure/webapps-deploy@v3
         with:
           app-name: derma-ia
-          images: voitureautonome.azurecr.io/derma-ia:${{ github.sha }}
+          images: derma-ia.azurecr.io/derma-ia:${{ github.sha }}
