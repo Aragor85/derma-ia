@@ -11,7 +11,7 @@ echo "✅ MISTRAL_API_KEY détectée."
 # --- Créer dossier modèles ---
 mkdir -p /app/models
 
-# --- Télécharger les modèles depuis Azure Blob si absent ---
+# --- Télécharger les modèles depuis Azure Blob si besoin ---
 declare -A MODELS
 MODELS=(
     ["unet_model.h5"]="https://dermatologieiastorage.blob.core.windows.net/dermatologiemodels/unet_model.h5"
