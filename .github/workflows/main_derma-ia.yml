@@ -26,23 +26,23 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      # 3️⃣ Login sur ACR derma-ia
+      # 3️⃣ Login sur ACR dermatologieia
       - name: Login to ACR
         uses: azure/docker-login@v1
         with:
-          login-server: derma-ia.azurecr.io
+          login-server: dermatologieia.azurecr.io
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
       # 4️⃣ Build et push de l’image Docker
       - name: Build and Push Docker image
         run: |
-          docker build -t derma-ia.azurecr.io/derma-ia:${{ github.sha }} .
-          docker push derma-ia.azurecr.io/derma-ia:${{ github.sha }}
+          docker build -t dermatologieia.azurecr.io/derma-ia:${{ github.sha }} .
+          docker push dermatologieia.azurecr.io/derma-ia:${{ github.sha }}
 
       # 5️⃣ Déploiement sur Azure App Service
       - name: Deploy to Azure WebApp
         uses: azure/webapps-deploy@v3
         with:
           app-name: derma-ia
-          images: derma-ia.azurecr.io/derma-ia:${{ github.sha }}
+          images: dermatologieia.azurecr.io/derma-ia:${{ github.sha }}
