@@ -3,10 +3,13 @@ set -e
 
 # --- Variables ---
 MODEL_DIR=/app/models
-FASTAPI_PORT=8000                # Port interne FastAPI
-STREAMLIT_PORT=${PORT:-8080}    # Port exposé par Azure
+FASTAPI_PORT=8000
+STREAMLIT_PORT=${PORT:-8080}
 
-# --- Création du dossier modèles ---
+# Ajouter /app au PYTHONPATH pour que utils soit trouvé
+export PYTHONPATH=/app
+
+# Créer le dossier modèles
 mkdir -p "$MODEL_DIR"
 
 # --- Téléchargement modèles si manquants ---
@@ -28,21 +31,21 @@ for name in "${!MODELS[@]}"; do
     fi
 done
 
-# --- Lancer FastAPI en arrière-plan avec logs vers stdout/stderr ---
+# --- Lancer FastAPI en arrière-plan ---
 echo "🚀 Démarrage FastAPI sur le port $FASTAPI_PORT..."
 uvicorn app.app_fastapi:app --host 0.0.0.0 --port $FASTAPI_PORT --log-level info &
 
-# --- Attendre que FastAPI soit prêt (10 secondes max) ---
+# --- Vérifier que FastAPI est prêt via HTTP ---
 echo "⏳ Vérification que FastAPI est démarré..."
 for i in {1..10}; do
-    if nc -z localhost $FASTAPI_PORT; then
+    if curl -s http://localhost:$FASTAPI_PORT/docs >/dev/null 2>&1; then
         echo "✅ FastAPI est prêt."
         break
     fi
     sleep 1
 done
 
-# --- Lancer Streamlit au premier plan pour Azure ---
+# --- Lancer Streamlit au premier plan ---
 echo "🚀 Démarrage Streamlit sur le port $STREAMLIT_PORT..."
 exec streamlit run app/app_streamlit.py \
     --server.port=$STREAMLIT_PORT \

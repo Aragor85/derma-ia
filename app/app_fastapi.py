@@ -13,8 +13,9 @@ from fastapi.responses import JSONResponse
 
 import tensorflow as tf
 from ultralytics import YOLO
-import utils
-import config
+from app import utils
+from app import config
+
 
 # ----------------- APP & LOG -----------------
 app = FastAPI(title="Derma IA - FastAPI")

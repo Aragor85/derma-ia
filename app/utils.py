@@ -5,7 +5,7 @@ from sklearn.metrics import precision_score, recall_score
 from azure.storage.blob import BlobServiceClient
 import io
 import logging
-import config
+from app import config
 
 logging.basicConfig(level=logging.INFO)
 
