@@ -34,15 +34,15 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      # 4️⃣ Build et push de l’image Docker
+      # 4️⃣ Build et push de l’image Docker (tag latest)
       - name: Build and Push Docker image
         run: |
-          docker build -t dermatologieia.azurecr.io/derma-ia:${{ github.sha }} .
-          docker push dermatologieia.azurecr.io/derma-ia:${{ github.sha }}
+          docker build -t dermatologieia.azurecr.io/derma-ia:latest .
+          docker push dermatologieia.azurecr.io/derma-ia:latest
 
-      # 5️⃣ Déploiement sur Azure App Service
+      # 5️⃣ Déploiement sur Azure App Service avec l’image latest
       - name: Deploy to Azure WebApp
         uses: azure/webapps-deploy@v3
         with:
           app-name: derma-ia
-          images: dermatologieia.azurecr.io/derma-ia:${{ github.sha }}
+          images: dermatologieia.azurecr.io/derma-ia:latest
