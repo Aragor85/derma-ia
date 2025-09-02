@@ -14,11 +14,11 @@ jobs:
       contents: read
 
     steps:
-      # 1️⃣ Checkout du code
+      # 1️ Checkout du code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Connexion à Azure via OIDC
+      # 2️ Connexion à Azure via OIDC
       - name: Azure Login
         uses: azure/login@v2
         with:
@@ -26,7 +26,7 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      # 3️⃣ Login sur ACR dermatologieia
+      # 3️ Login sur ACR dermatologieia
       - name: Login to ACR
         uses: azure/docker-login@v1
         with:
@@ -34,13 +34,13 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      # 4️⃣ Build et push de l’image Docker (tag latest)
+      # 4️ Build et push de l’image Docker (tag latest)
       - name: Build and Push Docker image
         run: |
           docker build -t dermatologieia.azurecr.io/derma-ia:latest .
           docker push dermatologieia.azurecr.io/derma-ia:latest
 
-      # 5️⃣ Déploiement sur Azure App Service avec l’image latest
+      # 5️ Déploiement sur Azure App Service avec l’image latest
       - name: Deploy to Azure WebApp
         uses: azure/webapps-deploy@v3
         with:
