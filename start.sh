@@ -1,9 +1,11 @@
 #!/bin/bash
 set -e
 
+# Ports
 FASTAPI_PORT=8000
 STREAMLIT_PORT=8501
 
+# Chemin du code
 export PYTHONPATH=/app
 
 echo "🚀 Démarrage FastAPI..."
