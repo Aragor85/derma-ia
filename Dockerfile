@@ -1,38 +1,33 @@
-# Image de base Python 3.10 légère
-FROM python:3.10-alpine
+# Image de base légère Debian/Ubuntu
+FROM python:3.10-slim
+
+# Variables d'environnement pour pip
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # Installer dépendances système nécessaires
-RUN apk add --no-cache \
-    build-base \
-    bash \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
     curl \
+    netcat \
     nginx \
-    netcat-openbsd \
-    libstdc++ \
-    mesa-gl \
-    glib \
-    libxext \
-    libxrender \
-    libsm \
     git \
-    && rm -rf /var/cache/apk/*
+    && rm -rf /var/lib/apt/lists/*
 
-# Créer un répertoire pour l'application
+# Créer le répertoire de l'application
 WORKDIR /app
 
-# Copier requirements.txt si tu en as un
+# Copier requirements.txt et installer dépendances Python
 COPY requirements.txt .
-
-# Installer les dépendances Python
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip \
+    && pip install -r requirements.txt
 
 # Copier le code de l'application
 COPY . .
 
-# Exposer le port pour FastAPI et/ou Streamlit
-EXPOSE 8000
-EXPOSE 8501
+# Exposer les ports pour FastAPI et Streamlit
+EXPOSE 8000 8501
 
-# Commande par défaut (ici FastAPI avec uvicorn)
+# Commande par défaut pour lancer FastAPI
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
