@@ -2,6 +2,7 @@
 FROM python:3.10-slim
 
 # Variables d'environnement pour pip et pour limiter CPU threads
+# Ajouter PATH pour que uvicorn et streamlit soient trouvés
 ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
@@ -9,7 +10,7 @@ ENV PYTHONUNBUFFERED=1 \
     TF_NUM_INTRAOP_THREADS=1 \
     TF_NUM_INTEROP_THREADS=1 \
     TORCH_NUM_THREADS=1 \
-    PATH="/usr/local/bin:$PATH"  # <--- ajout pour uvicorn/streamlit
+    PATH="/usr/local/bin:$PATH"
 
 # Installer dépendances système nécessaires
 RUN apt-get update && apt-get install -y --no-install-recommends \
