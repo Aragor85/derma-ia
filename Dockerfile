@@ -26,8 +26,7 @@ WORKDIR /app
 
 # Copier requirements.txt et installer dépendances
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt \
-    && pip cache purge
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copier seulement le code (pas les datasets / modèles)
 COPY app ./app
