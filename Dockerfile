@@ -1,5 +1,5 @@
 # Base légère avec Python 3.10
-FROM python:3.10-slim
+FROM python:3.10-alpine  
 
 # Installer dépendances système nécessaires
 RUN apt-get update && apt-get install -y --no-install-recommends \
