@@ -1,5 +1,5 @@
-# Stage unique : base TensorFlow mini
-FROM tensorflow/tensorflow:2.16.1-mini
+# Base : TensorFlow officiel avec Python 3
+FROM tensorflow/tensorflow:2.16.1-py3
 
 # Variables d'environnement pour Docker et pip
 ENV PYTHONUNBUFFERED=1 \
