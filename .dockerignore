@@ -1,0 +1,19 @@
+﻿# Ignorer fichiers lourds
+*.h5
+*.pt
+*.ckpt
+*.pkl
+*.npz
+*.npy
+
+# Ignorer caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# Ignorer datasets locaux
+data/
+datasets/
+notebooks/
