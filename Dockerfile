@@ -1,32 +1,34 @@
+# Base légère avec Python 3.10
 FROM python:3.10-slim
 
-WORKDIR /app
-
-# Dépendances système nécessaires
-RUN apt-get update && apt-get install -y \
+# Installer dépendances système nécessaires
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libglib2.0-0 \
     libsm6 \
     libxrender1 \
     libxext6 \
     libgl1 \
+    netcat-openbsd \
     curl \
     nginx \
     && rm -rf /var/lib/apt/lists/*
 
-# Installer dépendances Python
-COPY requirements.txt .
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
+WORKDIR /app
 
-# Copier app + scripts
+# Copier seulement requirements et installer
+COPY requirements.txt .
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
+
+# Copier le code
 COPY . .
 
-# Copier la config NGINX
+# Copier le fichier NGINX
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Exposer uniquement le port NGINX
+# Exposer le port Azure
 EXPOSE 8080
 
-# Lancer le script
+# Lancer le script de démarrage
 CMD ["bash", "start.sh"]

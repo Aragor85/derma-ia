@@ -34,10 +34,13 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      # 4️ Build et push de l’image Docker (tag latest)
+      # 4️ Build et push de l’image Docker optimisée (NGINX + timeout)
       - name: Build and Push Docker image
         run: |
-          docker build -t dermatologieia.azurecr.io/derma-ia:latest .
+          docker build \
+            --file Dockerfile \
+            --tag dermatologieia.azurecr.io/derma-ia:latest \
+            .
           docker push dermatologieia.azurecr.io/derma-ia:latest
 
       # 5️ Déploiement sur Azure App Service avec l’image latest
