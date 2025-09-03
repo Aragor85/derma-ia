@@ -1,7 +1,7 @@
-# Image de base légère Debian/Ubuntu
+# Dockerfile final optimisé pour TensorFlow + FastAPI + Streamlit
 FROM python:3.10-slim
 
-# Variables d'environnement pour pip
+# Variables d'environnement pour pip et Python
 ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
@@ -10,7 +10,7 @@ ENV PYTHONUNBUFFERED=1 \
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
-    netcat \
+    netcat-openbsd \
     nginx \
     git \
     && rm -rf /var/lib/apt/lists/*
@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Créer le répertoire de l'application
 WORKDIR /app
 
-# Copier requirements.txt et installer dépendances Python
+# Copier requirements.txt et installer les dépendances Python
 COPY requirements.txt .
 RUN pip install --upgrade pip \
     && pip install -r requirements.txt
@@ -29,5 +29,9 @@ COPY . .
 # Exposer les ports pour FastAPI et Streamlit
 EXPOSE 8000 8501
 
-# Commande par défaut pour lancer FastAPI
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Copier le script de démarrage
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+# Commande par défaut : lancer FastAPI et Streamlit via start.sh
+CMD ["/start.sh"]
