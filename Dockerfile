@@ -55,9 +55,9 @@ RUN pip install --upgrade pip \
 COPY . .
 
 # ------------------------------
-# Exposer les ports FastAPI et Streamlit
+# Exposer le port Streamlit
 # ------------------------------
-EXPOSE 8000 8501
+EXPOSE 8501
 
 # ------------------------------
 # Copier start.sh et le rendre exécutable
