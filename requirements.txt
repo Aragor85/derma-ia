@@ -22,3 +22,4 @@ scikit-learn==1.3.0
 # Communication et stockage
 requests==2.31.0
 azure-storage-blob==12.25.0
+python-multipart
