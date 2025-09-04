@@ -27,3 +27,12 @@ BLOB_MODELS = {
 # 🔑 Clé API Mistral (optionnelle pour LLM)
 # ------------------------------
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY", "")
+
+# ------------------------------
+# 📌 Paramètres optionnels supplémentaires (exemple)
+# ------------------------------
+# Taille d’image pour U-Net/CNN
+#IMG_SIZE = (256, 256)
+
+# Confiance minimale pour YOLO (si utilisé dans le filtrage)
+YOLO_CONF_THRESHOLD = 0.3
