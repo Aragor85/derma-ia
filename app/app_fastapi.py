@@ -77,7 +77,7 @@ def image_to_base64_pil(img_pil: Image.Image) -> str:
     img_pil.save(buf, format="PNG")
     return base64.b64encode(buf.getvalue()).decode("utf-8")
 
-def call_mistral_chat(system_prompt: str, user_prompt: str, max_tokens: int = 600, temperature: float = 0.2) -> str:
+def call_mistral_chat(system_prompt: str, user_prompt: str, max_tokens: int = 1200, temperature: float = 0.2) -> str:
     if not MISTRAL_API_KEY:
         raise RuntimeError("MISTRAL_API_KEY manquante ou invalide.")
     payload = {
@@ -189,7 +189,7 @@ async def predict_yolo(file: UploadFile = File(...)):
 
         system_prompt = "Tu es un dermatologue. Interprète uniquement les résultats YOLOv8 ci-dessous et rédige un compte rendu concis en français."
         details = "\n".join([f"- {d['label']} confiance {d['confidence']*100:.1f}%" for d in detections]) or "Aucune lésion détectée."
-        rapport_yolo = call_mistral_chat(system_prompt, f"Résultats YOLOv8:\n{details}\nNe dépasse pas 1000 tokens.", max_tokens=600)
+        rapport_yolo = call_mistral_chat(system_prompt, f"Résultats YOLOv8:\n{details}\nNe dépasse pas 1000 tokens.", max_tokens=1200)
 
         return {"detection": det_b64, "detections": detections, "rapport_yolo": rapport_yolo}
 
@@ -233,7 +233,7 @@ async def compare_models(file: UploadFile = File(...)):
 
         user_prompt = f"Résultats CNN+U-Net : {cnn_label} ({cnn_conf*100:.1f}%)\nDistribution :\n{dist_str}\nRésultats YOLOv8 : {yolo_str}\nRédige en français, clair et concis."
 
-        rapport_comparatif = call_mistral_chat(system_prompt, user_prompt, max_tokens=800, temperature=0.2)
+        rapport_comparatif = call_mistral_chat(system_prompt, user_prompt, max_tokens=1500, temperature=0.2)
 
         return {"cnn_label": cnn_label, "cnn_confidence": cnn_conf, "cnn_probs": [float(p) for p in probs],
                 "yolo_labels": yolo_dets, "rapport_comparatif": rapport_comparatif}
