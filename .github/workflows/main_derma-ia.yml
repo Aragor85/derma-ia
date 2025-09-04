@@ -1,4 +1,4 @@
-name: Deploy to Azure - derma-ia
+name: Deploy to Azure - Derma-IA
 
 on:
   push:
@@ -13,12 +13,17 @@ jobs:
       id-token: write
       contents: read
 
+    # 🔑 Variables d'environnement pour le container
+    env:
+      AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+      MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+
     steps:
-      # 1️ Checkout du code
+      # 1️⃣ Checkout du code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️ Connexion à Azure via OIDC
+      # 2️⃣ Connexion à Azure via OIDC
       - name: Azure Login
         uses: azure/login@v2
         with:
@@ -26,7 +31,7 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      # 3️ Login sur ACR dermatologieia
+      # 3️⃣ Login sur Azure Container Registry (ACR)
       - name: Login to ACR
         uses: azure/docker-login@v1
         with:
@@ -34,16 +39,17 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      # 4️ Build et push de l’image Docker optimisée (NGINX + timeout)
+      # 4️⃣ Build et push de l’image Docker
       - name: Build and Push Docker image
         run: |
           docker build \
             --file Dockerfile \
+            --build-arg AZURE_STORAGE_CONNECTION_STRING=${{ secrets.AZURE_STORAGE_CONNECTION_STRING }} \
             --tag dermatologieia.azurecr.io/derma-ia:latest \
             .
           docker push dermatologieia.azurecr.io/derma-ia:latest
 
-      # 5️ Déploiement sur Azure App Service avec l’image latest
+      # 5️⃣ Déploiement sur Azure App Service avec l’image latest
       - name: Deploy to Azure WebApp
         uses: azure/webapps-deploy@v3
         with:

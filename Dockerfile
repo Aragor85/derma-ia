@@ -3,7 +3,9 @@
 # ------------------------------
 FROM python:3.10-slim
 
+# ------------------------------
 # Variables d'environnement pour pip et threads CPU
+# ------------------------------
 ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
@@ -12,7 +14,18 @@ ENV PYTHONUNBUFFERED=1 \
     TF_NUM_INTEROP_THREADS=1 \
     TORCH_NUM_THREADS=1
 
+# ------------------------------
+# Arguments pour secrets Azure et Mistral
+# ------------------------------
+ARG AZURE_STORAGE_CONNECTION_STRING
+ENV AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING}
+
+ARG MISTRAL_API_KEY
+ENV MISTRAL_API_KEY=${MISTRAL_API_KEY}
+
+# ------------------------------
 # Installer dépendances système nécessaires
+# ------------------------------
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     netcat-openbsd \
@@ -24,23 +37,35 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     && rm -rf /var/lib/apt/lists/*
 
+# ------------------------------
 # Créer le répertoire de l'application
+# ------------------------------
 WORKDIR /app
 
+# ------------------------------
 # Copier requirements et installer les packages
+# ------------------------------
 COPY requirements.txt .
 RUN pip install --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
 
+# ------------------------------
 # Copier tout le code et les modèles
+# ------------------------------
 COPY . .
 
+# ------------------------------
 # Exposer les ports FastAPI et Streamlit
+# ------------------------------
 EXPOSE 8000 8501
 
+# ------------------------------
 # Copier start.sh et le rendre exécutable
+# ------------------------------
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
+# ------------------------------
 # Commande par défaut
+# ------------------------------
 CMD ["/start.sh"]
