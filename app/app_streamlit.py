@@ -1,4 +1,3 @@
-# app_streamlit.py
 import streamlit as st
 from PIL import Image
 import requests
@@ -9,9 +8,12 @@ st.set_page_config(page_title="Derma IA", layout="wide")
 
 st.title("🩺 Derma IA - Diagnostic Dermatologique")
 
-uploaded_file = st.file_uploader("Choisissez une image de lésion cutanée", type=["jpg", "png", "jpeg"])
+uploaded_file = st.file_uploader(
+    "Choisissez une image de lésion cutanée", 
+    type=["jpg", "png", "jpeg"]
+)
 
-# --- URLs fixes des API (non affichées à l'utilisateur) ---
+# --- URLs fixes des API ---
 endpoint_unet_cnn = "http://localhost:8000/predict_unet_cnn"
 endpoint_yolo = "http://localhost:8000/predict_yolo"
 endpoint_compare = "http://localhost:8000/compare_models"
@@ -35,25 +37,49 @@ if uploaded_file:
     file_name = uploaded_file.name
     file_type = uploaded_file.type
 
-    endpoints = [
-        ("Segmentation + Classification (U-Net + CNN)", endpoint_unet_cnn, "segmentation", "rapport"),
-        ("Détection YOLOv8", endpoint_yolo, "detection", "rapport_yolo"),
-        ("Comparatif des modèles", endpoint_compare, None, "rapport_comparatif")
-    ]
+    # Créer deux colonnes pour afficher CNN et YOLO côte à côte
+    col1, col2 = st.columns(2)
 
-    for title, url, img_key, report_key in endpoints:
-        with st.spinner(f"Analyse {title}..."):
+    # --- CNN + U-Net ---
+    with col1:
+        with st.spinner("Analyse U-Net + CNN..."):
             try:
-                resp = post_file(url, file_name, file_bytes, file_type)
-                if "error" not in resp:
-                    st.subheader(title)
-                    if img_key:
-                        display_image_b64(resp[img_key])
-                    st.text(resp[report_key])
+                resp_cnn = post_file(endpoint_unet_cnn, file_name, file_bytes, file_type)
+                if "error" not in resp_cnn:
+                    st.subheader("Segmentation + Classification (U-Net + CNN)")
+                    display_image_b64(resp_cnn["segmentation"])
+                    st.text(resp_cnn["rapport"])
                 else:
-                    st.error(resp["error"])
+                    st.error(resp_cnn["error"])
             except Exception as e:
-                st.error(f"Erreur {title} : {e}")
+                st.error(f"Erreur U-Net + CNN : {e}")
+
+    # --- YOLO ---
+    with col2:
+        with st.spinner("Analyse YOLOv8..."):
+            try:
+                resp_yolo = post_file(endpoint_yolo, file_name, file_bytes, file_type)
+                if "error" not in resp_yolo:
+                    st.subheader("Détection YOLOv8")
+                    display_image_b64(resp_yolo["detection"])
+                    st.text(resp_yolo["rapport_yolo"])
+                else:
+                    st.error(resp_yolo["error"])
+            except Exception as e:
+                st.error(f"Erreur YOLO : {e}")
+
+    # --- Comparatif en bas ---
+    st.markdown("---")
+    with st.spinner("Comparatif CNN/U-Net vs YOLO..."):
+        try:
+            resp_comp = post_file(endpoint_compare, file_name, file_bytes, file_type)
+            if "error" not in resp_comp:
+                st.subheader("📊 Comparatif des modèles")
+                st.text(resp_comp["rapport_comparatif"])
+            else:
+                st.error(resp_comp["error"])
+        except Exception as e:
+            st.error(f"Erreur Comparatif : {e}")
 
 # --- Disclaimer ---
 st.markdown(
