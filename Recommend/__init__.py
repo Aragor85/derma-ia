@@ -11,7 +11,7 @@ import requests
 URL_CONTENT = "https://mindreadingstorage.blob.core.windows.net/similaritycosinussurembeddingspca40/recommendations_vectorized.pkl"
 URL_SURPRISE = "https://mindreadingstorage.blob.core.windows.net/surprisesvdmodel/surprise_svd_model_all_3.pkl"
 
-# Répertoire temporaire dans Azure Functions
+# Répertoire temporaire dans Azure Functions pour stocker blob 
 TMP_DIR = "/tmp"
 CONTENT_PATH = os.path.join(TMP_DIR, "content.pkl")
 SURPRISE_PATH = os.path.join(TMP_DIR, "surprise.pkl")
